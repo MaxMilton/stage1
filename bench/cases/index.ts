@@ -1,0 +1,1 @@
+import './replace-vs-replaceAll';

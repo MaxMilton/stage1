@@ -15,36 +15,42 @@ Originally a fork of the excellent <https://github.com/Freak613/stage0> project.
 ## TODO
 
 - Add documentation about:
-  - Internal use of `innerHTML` — potencial risk of XSS etc.; never use `h` and `html` functions with untrusted input
+  - Internal use of `innerHTML` — potential risk of XSS etc.; never use `h` and `html` functions with untrusted input
     - In future we may have `Sanitizer.sanitizeFor(...)` which could be used to sanitize untrusted input
-      - It's unlikely we'll use it internally due to performance overhead but developers should definately sanitize input when untrusted before passing it in... although we could create light wrapper functions
+      - It's unlikely we'll use it internally due to performance overhead but developers should definitely sanitize input when untrusted before passing it in... although we could create light wrapper functions
       - <https://developer.mozilla.org/en-US/docs/Web/API/Sanitizer/sanitizeFor>
       - <https://developer.mozilla.org/en-US/docs/Web/API/HTML_Sanitizer_API>
   - New DOM utility functions
-    - `createFragment`
+    - `fragment`
+    - `text`
     - `create`
+    - `clone`
     - `append`
     - `prepend`
-    - `onNodeRemove`
+    - `insert`
+    - `onRemove`
   - New reactive store feature
   - Differences from the original `stage0` project:
-    - `h` is now `function h(template: string): S1Node` e.g., `h('<p>#text<p>')`
-    - `html` is available to use as a string template literal tag function e.g., `` html`<p>#text<p>` ``
-    - Import paths
-      - Other than reconcilers, everything is a named export from `stage1`
-      - Reconcilers all export a `reconcile` function
-      - `/keyed` --> `/reconcile/keyed`
-      - `/reconcile` --> `/reconcile/non-keyed`
-      - `/reuse-nodes` --> `/reconcile/reuse-nodes`
+    - There are now 2 runtime modes:
+      - New precompiled runtime mode for ultimate performance. Compiles templates at build-time via a bun macro that minifies templates, generates metadata, and then includes minimal runtime code in your JS bundle. Currently only works with [Bun.build](https://bun.sh/docs/bundler).
+      - The regular mode is still available which generates metadata when your JS is run in the browser. Regular mode can be used with or without a build process.
+    - Ref nodes are now marked with `@` rather than `#`
+    - `h` is now `function h(template: string): S1Node` e.g., `h('<p>@key<p>')`
+    - `html` is available to use as a string template literal tag function e.g., `` html`<p>@key<p>` `` (regular mode only)
+    - `view.collect` is now a `collect` function that needs to be imported separately
     - Extra DOM utils
     - New reactive `store` factory can be imported from `stage1/store`
     - Improved TypeScript support
     - Reduced size and improved load and runtime performance
-  - `process.env.NODE_ENV` must be defined
-  - If `process.env.NODE_ENV === 'production` you must minify `h`/`html` strings with a compatible minifier
-    - Add full example with `esbuild` + `esbuild-minify-templates`
+    - Import paths:
+      - Other than reconcilers and the store, everything is a named export from `stage1`
+      - Reconcilers all export a `reconcile` function
+      - `/keyed` --> `/reconcile/keyed`
+      - `/reconcile` --> `/reconcile/non-keyed`
+      - `/reuse-nodes` --> `/reconcile/reuse-nodes`
   - Ref names must be lowercase because some browsers normalise element attribute names when rendering HTML
 - Add API and usage documentation
+  - The regular mode `h()` function does not support skipping minification in whitespace sensitive HTML blocks like `<pre>` and `<code>` because it would be too slow. The precompiled mode `compile()` macro does however. Same for the other compile options.
 - Add more tests
 - Add examples
 - Set up benchmarking + compare to `stage0` and other JS frameworks
@@ -56,6 +62,8 @@ Originally a fork of the excellent <https://github.com/Freak613/stage0> project.
 
 Minimum browser version required:
 
+<!-- Note: The limiting factor is use of <template> element. -->
+
 - Chrome 26
 - Edge 13
 - Firefox 22
@@ -64,13 +72,18 @@ Minimum browser version required:
 
 Some optional features require a higher browser version:
 
-- Compiler `html` tagged template literal function uses `String.raw`; [requirements](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw#browser_compatibility)
-- `createFragment` utility function uses `DocumentFragment`; [requirements](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment/DocumentFragment#browser_compatibility)
-- `onNodeRemove` utility function uses `for...of`; [requirements](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of#browser_compatibility)
+- `html` tagged template literal function uses `String.raw`; [requirements](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw#browser_compatibility)
+- `onRemove` utility function uses `for...of` and `MutationObserver`; [requirements](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of#browser_compatibility), [requirements](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/)
 - `store` uses `Proxy`; [requirements](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#browser_compatibility)
   - Also uses [logical nullish assignment](<(https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_nullish_assignment#browser_compatibility)>) and [optional chaining operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining#browser_compatibility), however, build tools can transform these for old browser targets
 
-SSR via Node.js or Deno is not supported and is not the intended use of this library.
+SSR (server-side rendering) is not supported and is not the intended use of this library.
+
+## Build environment JS runtime support
+
+The default runtime requires [bun](https://bun.sh/) version 1.0.20 or above.
+
+The browser bundle does not have any specific build requirements.
 
 ## Bugs
 
@@ -86,4 +99,4 @@ MIT license. See [LICENSE](https://github.com/maxmilton/stage1/blob/master/LICEN
 
 ---
 
-© 2023 [Max Milton](https://maxmilton.com)
+© 2024 [Max Milton](https://maxmilton.com)

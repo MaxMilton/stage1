@@ -1,17 +1,13 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "declaration": true,
-
     "target": "esnext",
     "module": "esnext",
+    "moduleDetection": "force",
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "allowJs": true,
-    "checkJs": true,
+    "allowJs": false,
 
     "strict": true,
     "allowUnreachableCode": false,
@@ -19,9 +15,18 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false, // covered by eslint
     "noImplicitOverride": true,
+    "noUncheckedSideEffectImports": true,
     "noUnusedLocals": false, // covered by eslint
     "noUnusedParameters": false, // covered by eslint
     "verbatimModuleSyntax": true
   },
-  "exclude": ["coverage", "dist", "node_modules", "test", "build.mjs"]
+  "include": [
+    "*.config.mjs",
+    "*.config.ts",
+    "*.d.ts",
+    "build.ts",
+    "src",
+    "test"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

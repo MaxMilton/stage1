@@ -1,4 +1,4 @@
-const configuredEvents: Record<string, boolean> = {};
+const configuredEvents: Record<string, true | null> = {};
 
 const nativeToSyntheticEvent = (event: Event) => {
   // eslint-disable-next-line prefer-template
@@ -9,22 +9,20 @@ const nativeToSyntheticEvent = (event: Event) => {
     // @ts-expect-error - unavoidable string indexing
     if (node[eventKey]) {
       // @ts-expect-error - unavoidable string indexing
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      node[eventKey](event);
-      return;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
+      return node[eventKey](event);
     }
     node = node.parentNode;
   }
 };
 
 export const setupSyntheticEvent = (type: keyof DocumentEventMap): void => {
-  if (configuredEvents[type]) return;
-
-  document.addEventListener(type, nativeToSyntheticEvent);
-  configuredEvents[type] = true;
+  configuredEvents[type] ??=
+    // biome-ignore lint/style/noCommaOperator: code compactness
+    (document.addEventListener(type, nativeToSyntheticEvent), true);
 };
 
 export const deleteSyntheticEvent = (type: keyof DocumentEventMap): void => {
+  configuredEvents[type] = null;
   document.removeEventListener(type, nativeToSyntheticEvent);
-  configuredEvents[type] = false;
 };

@@ -1,32 +1,26 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-
 import { noop } from '../utils';
 
-export const reconcile = <T extends any[], N extends Node>(
+export const reconcile = <T, N extends Node>(
   parent: Element,
-  renderedValues: any[],
-  data: any[],
-  createFn: (...args: T) => N,
-  updateFn: (node: N, ...args: T) => void = noop,
+  renderedData: T[],
+  data: T[],
+  createFn: (itemData: T) => N,
+  updateFn: (node: N, itemData: T) => void = noop,
   beforeNode?: Node,
   afterNode?: Node | null,
 ): void => {
-  if (data.length === 0) {
+  const len = data.length;
+  if (len === 0) {
     if (beforeNode !== undefined || afterNode !== undefined) {
       let node =
-        beforeNode !== undefined ? beforeNode.nextSibling : parent.firstChild;
-      let tmp;
+        beforeNode === undefined ? parent.firstChild : beforeNode.nextSibling;
+      let tmp: ChildNode | null;
 
       if (afterNode === undefined) afterNode = null;
 
       while (node !== afterNode) {
-        // @ts-expect-error - FIXME:!
-        tmp = node.nextSibling;
-        // @ts-expect-error - FIXME:!
-        parent.removeChild(node);
+        tmp = node!.nextSibling;
+        node!.remove();
         node = tmp;
       }
     } else {
@@ -34,39 +28,38 @@ export const reconcile = <T extends any[], N extends Node>(
     }
     return;
   }
-  if (renderedValues.length > data.length) {
-    let i = renderedValues.length;
-    let tail =
-      // @ts-expect-error - FIXME:!
-      afterNode !== undefined ? afterNode.previousSibling : parent.lastChild;
-    let tmp;
-    while (i > data.length) {
-      // @ts-expect-error - FIXME:!
-      tmp = tail.previousSibling;
-      // @ts-expect-error - FIXME:!
-      parent.removeChild(tail);
+  if (renderedData.length > len) {
+    let index = renderedData.length;
+    let tail = afterNode == null ? parent.lastChild : afterNode.previousSibling;
+    let tmp: ChildNode | null;
+    while (index > len) {
+      tmp = tail!.previousSibling;
+      tail!.remove();
       tail = tmp;
-      i--;
+      index--;
     }
   }
 
-  let _head = beforeNode ? beforeNode.nextSibling : parent.firstChild;
-  // @ts-expect-error - FIXME:!
-  if (_head === afterNode) _head = undefined;
+  let head: Node | null = beforeNode
+    ? beforeNode.nextSibling
+    : parent.firstChild;
+  if (head === afterNode) head = null;
 
-  const _mode = afterNode ? 1 : 0;
-  for (let i = 0, item, head = _head, mode = _mode; i < data.length; i++) {
-    item = data[i];
+  const mode = afterNode ? 1 : 0;
+  let index = 0;
+  let item: T;
+  for (; index < len; index++) {
+    item = data[index];
     if (head) {
-      // @ts-expect-error - FIXME:!
-      updateFn(head, item);
+      updateFn(head as N, item);
     } else {
-      // @ts-expect-error - FIXME:!
       head = createFn(item);
-      // @ts-expect-error - FIXME:!
-      mode ? parent.insertBefore(head, afterNode) : parent.appendChild(head);
+      if (mode) {
+        parent.insertBefore(head, afterNode!);
+      } else {
+        parent.appendChild(head);
+      }
     }
-    // @ts-expect-error - FIXME:!
     head = head.nextSibling;
     if (head === afterNode) head = null;
   }

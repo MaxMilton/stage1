@@ -2,24 +2,28 @@ name: semgrep
 on:
   push:
     branches: [master, next]
-  pull_request:
-    branches: [master, next]
+  pull_request: {}
+  workflow_dispatch: {}
   schedule:
     - cron: '28 6 * * 4'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.label || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     container:
-      image: returntocorp/semgrep
+      image: semgrep/semgrep
     permissions:
       actions: read
       contents: read
       security-events: write
     steps:
       - uses: actions/checkout@v4
-      - run: semgrep ci --sarif --output=semgrep.sarif || true
+      - run: semgrep ci --sarif > semgrep.sarif
         env:
-          SEMGREP_RULES: p/default
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:

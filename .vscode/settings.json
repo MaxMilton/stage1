@@ -1,26 +1,32 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
   "editor.formatOnType": false,
-  "eslint.lintTask.options": "--ignore-path .gitignore",
-  "git.branchProtection": ["master"],
+  "eslint.format.enable": false,
+  "eslint.useFlatConfig": true,
+  "git.branchProtection": ["master", "next"],
   "js/ts.implicitProjectConfig.checkJs": true,
-  "prettier.ignorePath": ".gitignore",
+  "prettier.enable": false, // use biome instead
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.format.enable": false,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "[javascript]": {
+
+  "[css][html][json][jsonc][markdown][scss][xml]": {
     "editor.codeActionsOnSave": {
-      "source.sortImports": true,
-      "source.fixAll": true
-    }
+      "source.fixAll": "explicit",
+      "quickfix.biome": "explicit"
+    },
+    "editor.defaultFormatter": "biomejs.biome"
   },
-  "[typescript]": {
+  "[javascript][typescript]": {
     "editor.codeActionsOnSave": {
-      "source.sortImports": true,
-      "source.fixAll": true
-    }
+      "source.sortImports": "never",
+      "source.organizeImports": "never",
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll": "never",
+      "source.fixAll.eslint": "never",
+      "quickfix.biome": "explicit"
+    },
+    "editor.defaultFormatter": "biomejs.biome"
   }
 }

@@ -7,11 +7,13 @@ type Store<T> = T & {
 };
 
 /**
- * Creates a proxied state object that triggers callback functions when its
- * properties are set.
+ * Create a reactive data store.
  *
- * @param initialState - An initial store state. The provided object should not
- * have an `on` property because it is used internally.
+ * @param initialState - An initial store state object. It must not have an `on`
+ * property because that is used to register callback functions.
+ *
+ * @returns A proxied state object that triggers registered callback handler
+ * functions when its properties are set.
  */
 export const store = <T extends Record<string | symbol, unknown>>(
   initialState: T & { on?: never },
@@ -21,12 +23,13 @@ export const store = <T extends Record<string | symbol, unknown>>(
   return new Proxy(
     // proxied state object
     {
+      // shallow copy to prevent mutation of the initial state object
       ...initialState,
       on(key, fn) {
         (handlers[key] ??= []).push(fn);
         return /** off */ () => {
           // eslint-disable-next-line no-bitwise
-          handlers[key]?.splice(handlers[key]!.indexOf(fn) >>> 0, 1);
+          handlers[key]?.splice(handlers[key].indexOf(fn) >>> 0, 1);
         };
       },
     },

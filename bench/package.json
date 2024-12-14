@@ -1,0 +1,15 @@
+{
+  "name": "bench",
+  "version": "0.0.0",
+  "private": "true",
+  "scripts": {
+    "build": "bun build.ts",
+    "lint": "bun run lint:js && bun run lint:ts",
+    "lint:js": "eslint --ext .ts .",
+    "lint:ts": "tsc --noEmit",
+    "start": "bun cases/index.ts"
+  },
+  "dependencies": {
+    "mitata": "0.1.6"
+  }
+}

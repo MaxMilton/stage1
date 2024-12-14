@@ -1,70 +1,74 @@
 {
   "name": "stage1",
-  "version": "0.7.2",
-  "type": "module",
+  "version": "0.8.0-next.16",
   "description": "High-performance JavaScript micro framework",
-  "repository": "maxmilton/stage1",
-  "homepage": "https://github.com/maxmilton/stage1",
+  "repository": "git+https://github.com/maxmilton/stage1.git",
+  "bugs": "https://github.com/maxmilton/stage1/issues",
   "author": "Max Milton <max@happyhackers.xyz>",
   "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
   "main": "dist/index.js",
+  "browser": "dist/browser.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./reconcile/keyed": "./dist/reconcile/keyed.js",
-    "./reconcile/non-keyed": "./dist/reconcile/non-keyed.js",
-    "./reconcile/reuse-nodes": "./dist/reconcile/reuse-nodes.js",
-    "./store": "./dist/store.js",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "bun": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./macro": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/macro.js"
+    },
+    "./browser": {
+      "types": "./dist/index.d.ts",
+      "bun": "./src/browser/index.ts",
+      "import": "./dist/browser.mjs",
+      "require": "./dist/browser.js"
+    },
+    "./reconcile/keyed": {
+      "types": "./dist/index.d.ts",
+      "bun": "./src/reconcile/keyed.ts",
+      "default": "./dist/reconcile/keyed.js"
+    },
+    "./reconcile/non-keyed": {
+      "types": "./dist/index.d.ts",
+      "bun": "./src/reconcile/non-keyed.ts",
+      "default": "./dist/reconcile/non-keyed.js"
+    },
+    "./reconcile/reuse-nodes": {
+      "types": "./dist/index.d.ts",
+      "bun": "./src/reconcile/reuse-nodes.ts",
+      "default": "./dist/reconcile/reuse-nodes.js"
+    },
+    "./dist/*": "./dist/*",
     "./package.json": "./package.json"
   },
-  "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "reconcile/keyed": [
-        "dist/reconcile/keyed.d.ts"
-      ],
-      "reconcile/non-keyed": [
-        "dist/reconcile/non-keyed.d.ts"
-      ],
-      "reconcile/reuse-nodes": [
-        "dist/reconcile/reuse-nodes.d.ts"
-      ],
-      "store": [
-        "dist/store.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist", "src"],
   "scripts": {
-    "build": "pnpm run prebuild && node build.mjs && pnpm run postbuild",
-    "dev": "DEV_BUILD=1 node build.mjs",
-    "lint": "pnpm run lint:js && pnpm run lint:ts",
-    "lint:js": "eslint --ignore-path .gitignore --ext .ts,.js,.mjs,.cjs .",
-    "lint:ts": "tsc --project test --noEmit",
-    "postbuild": "tsc --emitDeclarationOnly",
-    "prebuild": "rm -rf dist; mkdir dist",
-    "test": "c8 --all --include=src --reporter=text --reporter=lcovonly uvu -r tsm -r \"$PWD\"/test/setup.ts test '\\.test\\.ts$'"
+    "build": "bun build.ts",
+    "lint": "bun lint:fmt && bun lint:js && bun lint:ts",
+    "lint:fmt": "biome check",
+    "lint:js": "eslint",
+    "lint:ts": "tsc --noEmit",
+    "test": "bun test",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@types/jsdom": "21.1.1",
-    "@types/node": "20.4.1",
-    "@typescript-eslint/eslint-plugin": "5.61.0",
-    "@typescript-eslint/parser": "5.61.0",
-    "c8": "8.0.0",
-    "esbuild": "0.18.11",
-    "eslint": "8.44.0",
-    "eslint-config-airbnb-base": "15.0.0",
-    "eslint-config-airbnb-typescript": "17.0.0",
-    "eslint-config-prettier": "8.8.0",
-    "eslint-plugin-import": "2.27.5",
-    "eslint-plugin-prettier": "5.0.0-alpha.2",
-    "jsdom": "22.1.0",
-    "nanospy": "1.0.0",
-    "prettier": "3.0.0",
-    "tsm": "2.3.0",
-    "typescript": "5.1.6",
-    "uvu": "0.5.6"
-  },
-  "sideEffects": false
+    "@biomejs/biome": "1.9.4",
+    "@eslint/js": "9.17.0",
+    "@maxmilton/eslint-config": "0.0.7",
+    "@maxmilton/test-utils": "0.0.6",
+    "@playwright/test": "1.49.1",
+    "@types/bun": "1.1.14",
+    "dts-buddy": "0.5.4",
+    "eslint": "9.17.0",
+    "eslint-plugin-unicorn": "56.0.1",
+    "happy-dom": "15.11.7",
+    "rollup": "4.28.1",
+    "terser": "5.37.0",
+    "typescript": "5.7.2",
+    "typescript-eslint": "8.18.0"
+  }
 }
